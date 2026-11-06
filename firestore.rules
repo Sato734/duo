@@ -1,0 +1,14 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Chaque duo a un code secret de 10 caractères : seuls ceux qui ont le code y accèdent.
+    match /duos/{code} {
+      allow get: if code.size() >= 6;
+      allow list: if false;
+      allow create, update: if code.size() >= 6
+        && request.resource.data.v == 1
+        && request.resource.data.keys().hasOnly(['v','updatedAt','names','scores','bets','defi','wheels','trip','lastSpin']);
+      allow delete: if false;
+    }
+  }
+}

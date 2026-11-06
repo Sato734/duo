@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1a1033">
+<meta name="apple-mobile-web-app-title" content="Duo">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="/icons/favicon.png">
+<meta name="application-name" content="Duo">
+<title>Duo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#1a1033; --card:#261a4a; --card2:#31225e; --txt:#fff7ee; --mut:#b9a9e0;
+    --pink:#ff5d8f; --yellow:#ffd23f; --mint:#3ee0b0; --blue:#5aa9ff; --orange:#ff8a3d;
+    --r:22px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--txt);font-family:'Fredoka',system-ui,sans-serif}
+  body{min-height:100vh;padding:calc(env(safe-area-inset-top) + 14px) 16px calc(env(safe-area-inset-bottom) + 96px)}
+  .wrap{max-width:480px;margin:0 auto}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  h1{font-size:28px;margin:0;font-weight:700;letter-spacing:.5px}
+  h1 span{color:var(--pink)}
+  .pill{background:var(--card);border-radius:999px;padding:6px 12px;font-size:14px;color:var(--mut)}
+  h2{font-size:20px;margin:6px 0 12px}
+  .card{background:var(--card);border-radius:var(--r);padding:18px;margin-bottom:14px;box-shadow:0 6px 0 #0e0820}
+  .muted{color:var(--mut);font-size:14px}
+  button{font-family:inherit;font-size:17px;font-weight:600;border:0;border-radius:16px;padding:13px 16px;cursor:pointer;color:#1a1033;transition:transform .08s}
+  button:active{transform:scale(.96)}
+  .btn-pink{background:var(--pink);color:#fff}
+  .btn-yellow{background:var(--yellow)}
+  .btn-mint{background:var(--mint)}
+  .btn-ghost{background:var(--card2);color:var(--txt)}
+  .row{display:flex;gap:10px}
+  .row>*{flex:1}
+  input,select{font-family:inherit;font-size:16px;width:100%;padding:12px 14px;border-radius:14px;border:2px solid var(--card2);background:#1f1540;color:var(--txt);outline:none}
+  input:focus,select:focus{border-color:var(--pink)}
+  .view{display:none;animation:pop .25s ease}
+  .view.on{display:block}
+  @keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  /* Défi */
+  .challenge{font-size:24px;line-height:1.25;font-weight:600;min-height:92px;display:flex;align-items:center}
+  .tag{display:inline-block;padding:4px 10px;border-radius:999px;font-size:13px;font-weight:600;color:#1a1033;margin-bottom:10px}
+  .streak{font-size:40px;font-weight:700;color:var(--yellow)}
+
+  /* Roue */
+  .wheel-box{position:relative;width:100%;max-width:340px;margin:0 auto 14px;aspect-ratio:1}
+  canvas{width:100%;height:100%;display:block}
+  .pointer{position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-top:30px solid var(--txt);filter:drop-shadow(0 3px 0 #0e0820);z-index:2}
+  .result{text-align:center;font-size:24px;font-weight:700;min-height:34px;color:var(--yellow);margin-bottom:12px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+  .chip{background:var(--card2);border-radius:999px;padding:7px 12px;font-size:15px;display:flex;align-items:center;gap:8px}
+  .chip b{cursor:pointer;color:var(--pink);font-size:18px;line-height:1}
+  .cats{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px}
+  .cats button{flex:0 0 auto;padding:9px 14px;font-size:15px;background:var(--card2);color:var(--txt)}
+  .cats button.on{background:var(--yellow);color:#1a1033}
+
+  /* Scores */
+  .score-grid{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;text-align:center;gap:6px}
+  .score-grid .name{font-size:17px;font-weight:600;background:transparent;border:0;text-align:center;padding:4px;color:var(--txt)}
+  .score-grid .pts{font-size:54px;font-weight:700;line-height:1}
+  .vs{font-size:18px;color:var(--mut);font-weight:700}
+  .p1{color:var(--pink)} .p2{color:var(--blue)}
+  .bet{background:var(--card2);border-radius:16px;padding:12px 14px;margin-bottom:10px}
+  .bet .t{font-weight:600;font-size:17px;margin-bottom:8px}
+  .bet .meta{font-size:13px;color:var(--mut);margin-bottom:8px}
+  .bet .row button{font-size:14px;padding:9px 8px}
+  .won{opacity:.6}
+  .won .t::after{content:"  ✓";color:var(--mint)}
+
+  /* Nav */
+  nav{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(env(safe-area-inset-bottom) + 10px);background:linear-gradient(transparent,var(--bg) 30%)}
+  nav .bar{max-width:480px;margin:0 auto;background:var(--card);border-radius:24px;display:flex;padding:6px;box-shadow:0 6px 0 #0e0820}
+  nav button{flex:1;background:transparent;color:var(--mut);padding:10px 4px;font-size:13px;display:flex;flex-direction:column;align-items:center;gap:2px}
+  nav button .i{font-size:24px}
+  nav button.on{background:var(--card2);color:var(--txt)}
+
+  .toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 16px);transform:translate(-50%,-80px);background:var(--mint);color:#1a1033;padding:12px 18px;border-radius:16px;font-weight:600;transition:transform .3s;z-index:9;box-shadow:0 5px 0 #0e0820;max-width:90%;text-align:center}
+  .toast.show{transform:translate(-50%,0)}
+  .confetti{position:fixed;width:10px;height:14px;top:-20px;z-index:8;pointer-events:none;border-radius:3px}
+  @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+  .modal{position:fixed;inset:0;background:#0009;display:none;align-items:flex-end;justify-content:center;z-index:10;padding:16px}
+  .modal.on{display:flex}
+  .modal .card{width:100%;max-width:480px;margin-bottom:calc(env(safe-area-inset-bottom) + 10px)}
+
+  /* Thème Séoul-Osaka (néon Hongdae × sakura) */
+  body.asia{--bg:#0b0a1f;--card:#17153a;--card2:#24205a;--txt:#fdf2ff;--mut:#a8a3e8;--pink:#ff4fa3;--yellow:#ffc2dc;--mint:#29f0e0;--blue:#7b6cff}
+  body.asia h1{text-shadow:0 0 12px #ff4fa3aa}
+  body.asia .card{box-shadow:0 6px 0 #05041a,0 0 0 1px #ff4fa333}
+  body.asia::before{content:"🌸";position:fixed;right:-10px;top:60px;font-size:120px;opacity:.07;pointer-events:none;transform:rotate(-15deg)}
+  header .pill{cursor:pointer;white-space:nowrap}
+  .code{font-size:30px;font-weight:700;letter-spacing:3px;color:var(--yellow);text-align:center;background:var(--card2);border-radius:16px;padding:14px;margin:10px 0 14px;user-select:all}
+  .theme-btn{background:var(--card);color:var(--txt);padding:6px 12px;font-size:14px;border-radius:999px}
+
+  /* Voyage */
+  .count{font-size:64px;font-weight:700;line-height:1;color:var(--pink)}
+  .count small{font-size:22px;color:var(--mut)}
+  .flags{font-size:30px;letter-spacing:4px}
+  .phrase-fr{font-size:22px;font-weight:600;margin-bottom:12px}
+  .lang{background:var(--card2);border-radius:16px;padding:12px 14px;margin-bottom:10px;cursor:pointer}
+  .lang .native{font-size:24px;font-weight:600}
+  .lang .roman{color:var(--mut);font-size:15px}
+  .lang.hide .native,.lang.hide .roman{filter:blur(8px)}
+  .lang .lbl{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Du<span>o</span> 🎲</h1>
+    <div class="row" style="flex:0 0 auto;gap:8px;align-items:center">
+      <div class="pill"><span id="today"></span><span id="sync"></span></div>
+      <button class="theme-btn" id="theme-btn">🌸</button>
+    </div>
+  </header>
+
+  <!-- DÉFI DU JOUR -->
+  <section class="view on" id="v-defi">
+    <div class="card">
+      <span class="tag" id="d-tag">Défi</span>
+      <div class="challenge" id="d-text">…</div>
+      <p class="muted" id="d-sub">Le défi change chaque jour à minuit.</p>
+      <div class="row" style="margin-top:12px">
+        <button class="btn-ghost" id="d-reroll">🔄 Un autre</button>
+        <button class="btn-mint" id="d-done">✅ Réussi !</button>
+      </div>
+    </div>
+    <div class="card row" style="align-items:center">
+      <div>
+        <div class="muted">Série de défis réussis</div>
+        <div class="streak" id="d-streak">0 🔥</div>
+      </div>
+      <div style="text-align:right">
+        <div class="muted">Total</div>
+        <div class="streak" style="color:var(--mint)" id="d-total">0</div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Ambiance</h2>
+      <div class="cats" id="d-moods"></div>
+      <p class="muted">Choisis le type de défis que tu veux recevoir.</p>
+    </div>
+  </section>
+
+  <!-- ROUE -->
+  <section class="view" id="v-roue">
+    <div class="cats" id="w-cats"></div>
+    <div class="wheel-box">
+      <div class="pointer"></div>
+      <canvas id="wheel" width="680" height="680"></canvas>
+    </div>
+    <div class="result" id="w-result">Fais tourner !</div>
+    <button class="btn-pink" style="width:100%;font-size:20px;padding:16px" id="w-spin">🎡 Tourner la roue</button>
+    <div class="card" style="margin-top:14px">
+      <h2>Options</h2>
+      <div class="chips" id="w-chips"></div>
+      <form class="row" id="w-form">
+        <input id="w-input" placeholder="Ajouter une option…" maxlength="24" style="flex:3">
+        <button class="btn-yellow" type="submit" style="flex:1">+</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- VOYAGE -->
+  <section class="view" id="v-voyage">
+    <div class="card" style="text-align:center">
+      <div class="flags">🇰🇷 ✈️ 🇯🇵</div>
+      <div class="count" id="t-count">—</div>
+      <p class="muted" id="t-sub" style="margin:6px 0 12px">Choisis la date du départ pour Séoul</p>
+      <input type="date" id="t-date">
+    </div>
+    <div class="card">
+      <h2>Phrase du jour</h2>
+      <div class="phrase-fr" id="p-fr"></div>
+      <div class="lang hide" id="p-ko"><div class="lbl">🇰🇷 Coréen</div><div class="native"></div><div class="roman"></div></div>
+      <div class="lang hide" id="p-ja"><div class="lbl">🇯🇵 Japonais</div><div class="native"></div><div class="roman"></div></div>
+      <p class="muted" style="margin:4px 0 12px">Devine d'abord, puis touche pour révéler.</p>
+      <div class="row">
+        <button class="btn-ghost" id="p-next">➡️ Suivante</button>
+        <button class="btn-mint" id="p-known">👍 Je la connais</button>
+      </div>
+      <p class="muted" style="text-align:center;margin:12px 0 0" id="p-stat"></p>
+    </div>
+  </section>
+
+  <!-- SCORES & PARIS -->
+  <section class="view" id="v-paris">
+    <div class="card">
+      <div class="score-grid">
+        <div><input class="name p1" id="n1" maxlength="14"><div class="pts p1" id="s1">0</div></div>
+        <div class="vs">VS</div>
+        <div><input class="name p2" id="n2" maxlength="14"><div class="pts p2" id="s2">0</div></div>
+      </div>
+      <p class="muted" style="text-align:center;margin:10px 0 0">Touche un prénom pour le modifier</p>
+    </div>
+    <div class="card">
+      <h2>Nouveau pari</h2>
+      <form id="b-form">
+        <input id="b-text" placeholder="Ex : Il va pleuvoir demain" maxlength="60" style="margin-bottom:10px">
+        <div class="row" style="margin-bottom:10px">
+          <input id="b-stake" placeholder="Enjeu (ex : un resto)" maxlength="30" style="flex:2">
+          <select id="b-pts" style="flex:1">
+            <option value="1">1 pt</option><option value="3" selected>3 pts</option><option value="5">5 pts</option><option value="10">10 pts</option>
+          </select>
+        </div>
+        <button class="btn-pink" type="submit" style="width:100%">🤝 Tope là</button>
+      </form>
+    </div>
+    <h2 id="b-head">Paris en cours</h2>
+    <div id="b-list"></div>
+    <button class="btn-ghost" id="reset" style="width:100%;margin-top:10px;font-size:15px">Remettre les scores à zéro</button>
+  </section>
+</div>
+
+<nav><div class="bar">
+  <button class="on" data-v="defi"><span class="i">⚡</span>Défi</button>
+  <button data-v="roue"><span class="i">🎡</span>Roue</button>
+  <button data-v="voyage"><span class="i">✈️</span>Voyage</button>
+  <button data-v="paris"><span class="i">🏆</span>Paris</button>
+</div></nav>
+
+<div class="toast" id="toast"></div>
+<div class="modal" id="modal"><div class="card">
+  <h2 id="m-title">Sûr ?</h2>
+  <p class="muted" id="m-text"></p>
+  <div class="row"><button class="btn-ghost" id="m-no">Annuler</button><button class="btn-pink" id="m-yes">Oui</button></div>
+</div></div>
+
+
+<div class="modal" id="sync-modal"><div class="card">
+  <h2>🔗 Synchro du duo</h2>
+  <div id="sy-on">
+    <p class="muted" style="margin:0">Votre code de duo :</p>
+    <div class="code" id="sy-code"></div>
+    <button class="btn-pink" id="sy-share" style="width:100%;margin-bottom:16px">📤 Inviter (envoyer le lien)</button>
+    <p class="muted" style="margin:0 0 8px">Ou rejoindre le duo de l'autre :</p>
+    <form class="row" id="sy-join">
+      <input id="sy-input" placeholder="Code ou lien" autocapitalize="off" autocomplete="off" style="flex:2">
+      <button class="btn-yellow" type="submit" style="flex:1">Rejoindre</button>
+    </form>
+  </div>
+  <div id="sy-off"><p class="muted">La synchro n'est pas encore configurée. Duo marche quand même sur ce téléphone, mais sans partage.</p></div>
+  <button class="btn-ghost" id="sy-close" style="width:100%;margin-top:14px">Fermer</button>
+</div></div>
+
+<script type="module" src="/app.js"></script>
+</body>
+</html>
