@@ -98,7 +98,13 @@
   body.asia::before{content:"🌸";position:fixed;right:-10px;top:60px;font-size:120px;opacity:.07;pointer-events:none;transform:rotate(-15deg)}
   header .pill{cursor:pointer;white-space:nowrap}
   .code{font-size:30px;font-weight:700;letter-spacing:3px;color:var(--yellow);text-align:center;background:var(--card2);border-radius:16px;padding:14px;margin:10px 0 14px;user-select:all}
-  .theme-btn{background:var(--card);color:var(--txt);padding:6px 12px;font-size:14px;border-radius:999px}
+.dice-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .die-box{background:#ffffff14;border-radius:16px;padding:12px 6px;text-align:center;min-height:96px;display:flex;flex-direction:column;justify-content:center}
+  .die-box .lbl{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+  .die-val{font-size:16px;font-weight:600;line-height:1.2}
+  .die-val.roll{animation:shake .12s linear infinite}
+  @keyframes shake{0%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}100%{transform:rotate(-6deg)}}
+    .theme-btn{background:var(--card);color:var(--txt);padding:6px 12px;font-size:14px;border-radius:999px}
 
   /* Voyage */
   .count{font-size:64px;font-weight:700;line-height:1;color:var(--pink)}
@@ -152,6 +158,15 @@
         <button class="btn-pink" id="hot-a">🔥 Action</button>
       </div>
       <p class="muted" style="margin:10px 0 0;font-size:12px">On peut toujours passer son tour. « Stop » veut dire stop.</p>
+    </div>
+    <div class="card" id="dice-card" style="display:none;background:linear-gradient(135deg,#2a0f3e,#4a1240)">
+      <h2>🎲 Dés coquins</h2>
+      <div class="dice-row">
+        <div class="die-box"><div class="lbl">Position</div><div class="die-val" id="dc-pos">?</div></div>
+        <div class="die-box"><div class="lbl">Où</div><div class="die-val" id="dc-loc">?</div></div>
+        <div class="die-box"><div class="lbl">Rythme</div><div class="die-val" id="dc-tempo">?</div></div>
+      </div>
+      <button class="btn-pink" id="dc-roll" style="width:100%;margin-top:12px">🎲 Lancer les dés</button>
     </div>
     <div class="card">
       <h2>Ambiance</h2>

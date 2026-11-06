@@ -165,6 +165,7 @@ function renderDefi(){
   $('d-moods').innerHTML=MOODS().map(([k,l])=>`<button class="${curMood()===k?'on':''}" data-m="${k}">${l}</button>`).join('');
   $('d-moods').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.defi.mood=b.dataset.m;S.defi.offset=0;save();renderDefi()});
   $('hot-card').style.display=S.hot?'block':'none';
+  $('dice-card').style.display=S.hot?'block':'none';
 }
 // Action ou vérité Hot
 let hotTurn=0;
@@ -176,6 +177,21 @@ function hotPick(kind){
   $('hot-text').textContent=t;
 }
 $('hot-a').onclick=()=>hotPick('a');
+// Dés coquins
+const DICE={
+  pos:['Missionnaire','Andromaque','Levrette','Cuillère','Lotus','Amazone inversée','Debout','Bord du lit','Le pont','Face à face assis','Jambes sur les épaules','Au choix de l\'autre'],
+  loc:['Lit','Canapé','Douche','Fauteuil','Contre le mur','Tapis du salon','Cuisine','Devant le miroir','Bain','Au choix'],
+  tempo:['Tout doucement','Au ralenti','2 minutes','5 minutes','Sans les mains d\'abord','Les yeux bandés','En silence','Rapide','Jusqu\'au bout','L\'autre décide'],
+};
+$('dc-roll').onclick=()=>{
+  const ids=[['dc-pos','pos'],['dc-loc','loc'],['dc-tempo','tempo']];
+  const r=a=>a[Math.floor(Math.random()*a.length)];
+  ids.forEach(([id])=>$(id).classList.add('roll'));
+  const t0=Date.now(),iv=setInterval(()=>{
+    ids.forEach(([id,k])=>$(id).textContent=r(DICE[k]));
+    if(Date.now()-t0>900){clearInterval(iv);ids.forEach(([id])=>$(id).classList.remove('roll'));confetti(15);try{navigator.vibrate&&navigator.vibrate(60)}catch(e){}}
+  },80);
+};
 $('hot-q').onclick=()=>hotPick('q');
 $('d-reroll').onclick=()=>{S.defi.offset++;save();renderDefi()};
 $('d-done').onclick=()=>{
