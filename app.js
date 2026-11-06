@@ -35,6 +35,7 @@ const defaults={
     sortie:['Bowling','Cinéma','Balade','Escape game','Karaoké','Laser game','Musée','Jeux vidéo'],
     gage:['Faire la vaisselle','Masser 5 min','Payer le café','Chanter une chanson','Choisir le film','Ranger le salon'],
     perso:['Option 1','Option 2','Option 3'],
+    hot:['Massage 🔥','Baiser 30 s','Glaçon','Yeux bandés','Strip PFC','Slow collé','Douche à deux','Tenue imposée','Vérité hot','Gage au choix'],
     seoul:['Hongdae','Myeongdong','Gyeongbokgung','Bukchon Hanok','N Seoul Tower','Seongsu-dong','Marché Gwangjang','Itaewon','Ikseon-dong','Parc Hangang'],
     osaka:['Dotonbori','Shinsekai','Château d\'Osaka','Marché Kuromon','Umeda Sky','Universal Studios','Journée à Nara','Journée à Kyoto'],
     foodasia:['Tteokbokki','BBQ coréen','Chimaek 🍗🍺','Bibimbap','Takoyaki','Okonomiyaki','Ramen','Kushikatsu','Sushi tapis roulant','Konbini party']
@@ -107,11 +108,48 @@ const DEFIS=[
   {m:'asia',c:'#ff4fa3',t:'Avant le départ : apprenez à lire votre prénom en hangeul'},
   {m:'asia',c:'#ff4fa3',t:'Avant le départ : soirée drama coréen + ramyeon à la maison'},
   {m:'asia',c:'#ff4fa3',t:'Avant le départ : chacun choisit LE spot à ne pas rater, l\'autre ne peut pas refuser'},
+  {m:'hot',c:'#ff3b5c',t:'Massage de 10 minutes : l\'autre choisit la zone, huile autorisée'},
+  {m:'hot',c:'#ff3b5c',t:'Un baiser de 30 secondes, interdiction d\'utiliser les mains'},
+  {m:'hot',c:'#ff3b5c',t:'Yeux bandés : devine 3 endroits où l\'autre t\'embrasse'},
+  {m:'hot',c:'#ff3b5c',t:'Strip pierre-feuille-ciseaux : le perdant enlève un vêtement à chaque manche'},
+  {m:'hot',c:'#ff3b5c',t:'Slow collé-serré sur la chanson choisie par l\'autre'},
+  {m:'hot',c:'#ff3b5c',t:'Un glaçon, une minute : promène-le où tu veux sur l\'autre'},
+  {m:'hot',c:'#ff3b5c',t:'5 minutes de contrôle total : l\'autre n\'a pas le droit de te toucher'},
+  {m:'hot',c:'#ff3b5c',t:'Envoie un message coquin à l\'autre en pleine journée'},
+  {m:'hot',c:'#ff3b5c',t:'Douche ou bain à deux ce soir'},
+  {m:'hot',c:'#ff3b5c',t:'Choisis la tenue que l\'autre portera ce soir'},
+  {m:'hot',c:'#ff3b5c',t:'L\'autre lit un texte à voix haute pendant que tu l\'embrasses dans le cou : s\'il rit, il a perdu'},
+  {m:'hot',c:'#ff3b5c',t:'Déshabillez-vous mutuellement… au ralenti'},
 ];
-const MOODS=[['all','🎲 Tout'],['asia','🇰🇷🇯🇵 Séoul-Osaka'],['fun','😂 Délire'],['cute','💖 Mignon'],['versus','⚔️ Duel'],['chill','🌿 Chill']];
-const MOODNAME={fun:'Délire',cute:'Mignon',versus:'Duel',chill:'Chill',asia:'Séoul-Osaka'};
+const HOT_ACTIONS=DEFIS.filter(d=>d.m==='hot').map(d=>d.t).concat([
+  'Murmure à l\'oreille de l\'autre ce que tu as envie de lui faire',
+  'Embrasse l\'autre à un endroit que tu n\'as jamais embrassé',
+  'Fais un compliment très osé, en le regardant dans les yeux',
+  'Retire un vêtement de l\'autre, avec les dents',
+  'Massage des épaules de 3 minutes, en ne t\'arrêtant pas aux épaules',
+]);
+const HOT_QUESTIONS=[
+  'Quel fantasme tu n\'as encore jamais osé me dire ?',
+  'Quel endroit insolite te tenterait ?',
+  'À quel moment tu m\'as trouvé·e le plus irrésistible ?',
+  'Qu\'est-ce que je fais qui te rend complètement fou/folle ?',
+  'Plutôt le matin ou le soir ?',
+  'Quelle tenue tu aimerais me voir porter ?',
+  'Ton meilleur souvenir à deux sous la couette ?',
+  'Quelle partie de mon corps tu préfères ?',
+  'Il y a un truc que tu aimerais qu\'on essaie ensemble ?',
+  'Plutôt lent et tendre, ou passionné ?',
+  'Note notre dernière nuit sur 10… et pourquoi ?',
+  'Quel message coquin tu aimerais recevoir de moi ?',
+  'Ton premier souvenir où tu as eu envie de moi ?',
+  'Quelle chanson te met tout de suite dans l\'ambiance ?',
+];
+const MOODS_BASE=[['all','🎲 Tout'],['asia','🇰🇷🇯🇵 Séoul-Osaka'],['fun','😂 Délire'],['cute','💖 Mignon'],['versus','⚔️ Duel'],['chill','🌿 Chill']];
+const MOODS=()=>S.hot?MOODS_BASE.concat([['hot','🔥 Hot']]):MOODS_BASE;
+const MOODNAME={hot:'Hot 🔥',fun:'Délire',cute:'Mignon',versus:'Duel',chill:'Chill',asia:'Séoul-Osaka'};
 function hash(s){let h=0;for(const ch of s)h=(h*31+ch.charCodeAt(0))|0;return Math.abs(h)}
-function pool(){return S.defi.mood==='all'?DEFIS:DEFIS.filter(d=>d.m===S.defi.mood)}
+function curMood(){return S.defi.mood==='hot'&&!S.hot?'all':S.defi.mood}
+function pool(){const m=curMood();return m==='all'?DEFIS.filter(d=>d.m!=='hot'):DEFIS.filter(d=>d.m===m)}
 function currentDefi(){
   const day=todayStr();
   if(S.defi.offsetDay!==day){S.defi.offset=0;S.defi.offsetDay=day}
@@ -124,9 +162,21 @@ function renderDefi(){
   $('d-done').textContent=doneToday?'🎉 Fait aujourd\'hui':'✅ Réussi !';
   $('d-done').disabled=doneToday;$('d-done').style.opacity=doneToday?.6:1;
   $('d-streak').textContent=S.defi.streak+' 🔥';$('d-total').textContent=S.defi.total;
-  $('d-moods').innerHTML=MOODS.map(([k,l])=>`<button class="${S.defi.mood===k?'on':''}" data-m="${k}">${l}</button>`).join('');
+  $('d-moods').innerHTML=MOODS().map(([k,l])=>`<button class="${curMood()===k?'on':''}" data-m="${k}">${l}</button>`).join('');
   $('d-moods').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.defi.mood=b.dataset.m;S.defi.offset=0;save();renderDefi()});
+  $('hot-card').style.display=S.hot?'block':'none';
 }
+// Action ou vérité Hot
+let hotTurn=0;
+function hotPick(kind){
+  const list=kind==='a'?HOT_ACTIONS:HOT_QUESTIONS;
+  const t=list[Math.floor(Math.random()*list.length)];
+  const who=S.names[hotTurn%2];hotTurn++;
+  $('hot-who').textContent=(kind==='a'?'🔥 Action pour ':'💬 Vérité pour ')+who;
+  $('hot-text').textContent=t;
+}
+$('hot-a').onclick=()=>hotPick('a');
+$('hot-q').onclick=()=>hotPick('q');
 $('d-reroll').onclick=()=>{S.defi.offset++;save();renderDefi()};
 $('d-done').onclick=()=>{
   const y=dayStr(-1);
@@ -135,11 +185,12 @@ $('d-done').onclick=()=>{
 };
 
 // ---------- Roue ----------
-const CATS=[['seoul','🇰🇷 Séoul'],['osaka','🇯🇵 Osaka'],['foodasia','🥢 Food Asie'],['resto','🍜 Resto'],['film','🎬 Film'],['sortie','🎳 Sortie'],['gage','😈 Gage'],['perso','✏️ Perso']];
+const CATS_BASE=[['seoul','🇰🇷 Séoul'],['osaka','🇯🇵 Osaka'],['foodasia','🥢 Food Asie'],['resto','🍜 Resto'],['film','🎬 Film'],['sortie','🎳 Sortie'],['gage','😈 Gage'],['perso','✏️ Perso']];
+const CATS=()=>S.hot?CATS_BASE.concat([['hot','🔥 Hot']]):CATS_BASE;
 const COLORS=['#ff5d8f','#ffd23f','#3ee0b0','#5aa9ff','#ff8a3d','#b07bff'];
 let angle=0,spinning=false;
 const cv=$('wheel'),ctx=cv.getContext('2d');
-function opts(){return S.wheels[S.wheelCat]}
+function opts(){if(S.wheelCat==='hot'&&!S.hot)S.wheelCat='seoul';return S.wheels[S.wheelCat]||(S.wheels[S.wheelCat]=[])}
 function drawWheel(){
   const o=opts(),n=Math.max(o.length,1),W=cv.width,R=W/2-10,cx=W/2,cy=W/2,seg=2*Math.PI/n;
   ctx.clearRect(0,0,W,W);
@@ -160,7 +211,7 @@ function drawWheel(){
   ctx.font='40px sans-serif';ctx.textAlign='center';ctx.fillText('🎲',cx,cy+14);
 }
 function renderWheel(){
-  $('w-cats').innerHTML=CATS.map(([k,l])=>`<button class="${S.wheelCat===k?'on':''}" data-c="${k}">${l}</button>`).join('');
+  $('w-cats').innerHTML=CATS().map(([k,l])=>`<button class="${S.wheelCat===k?'on':''}" data-c="${k}">${l}</button>`).join('');
   $('w-cats').querySelectorAll('button').forEach(b=>b.onclick=()=>{if(spinning)return;S.wheelCat=b.dataset.c;save();$('w-result').textContent='Fais tourner !';renderWheel()});
   $('w-chips').innerHTML=opts().map((t,i)=>`<span class="chip">${esc(t)}<b data-i="${i}">×</b></span>`).join('')||'<span class="muted">Ajoute au moins 2 options</span>';
   $('w-chips').querySelectorAll('b').forEach(b=>b.onclick=()=>{if(spinning)return;opts().splice(+b.dataset.i,1);save();renderWheel()});
@@ -275,7 +326,7 @@ function applyRemote(d,first){
   if(document.activeElement&&['n1','n2'].includes(document.activeElement.id)){renderDefi();renderTrip();}else renderAll();
   if(ls&&ls.id&&ls.id!==seenSpin){
     seenSpin=ls.id;
-    if(!first&&!spinning&&S.wheels[ls.cat]&&S.wheels[ls.cat].length===ls.n&&Date.now()-ls.at<60000){
+    if(!first&&!spinning&&(ls.cat!=='hot'||S.hot)&&S.wheels[ls.cat]&&S.wheels[ls.cat].length===ls.n&&Date.now()-ls.at<60000){
       S.wheelCat=ls.cat;renderWheel();goTab('roue');spinTo(ls.idx,ls.off,true);
     }
   }
@@ -322,6 +373,11 @@ $('sy-share').onclick=async()=>{
   try{if(navigator.share){await navigator.share({title:'Duo',text:'Rejoins-moi sur Duo 🎲',url});return}}catch(e){if(e&&e.name==='AbortError')return}
   try{await navigator.clipboard.writeText(url);toast('Lien copié 📋')}catch(e){toast(url)}
 };
+$('app-share').onclick=async()=>{
+  const url=location.origin+'/';
+  try{if(navigator.share){await navigator.share({title:'Duo',text:'Teste Duo, l\'appli de défis à deux 🎲',url});return}}catch(e){if(e&&e.name==='AbortError')return}
+  try{await navigator.clipboard.writeText(url);toast('Lien de l\'appli copié 📋')}catch(e){toast(url)}
+};
 $('sy-join').onsubmit=async e=>{
   e.preventDefault();
   const c=$('sy-input').value.trim().toLowerCase().replace(/.*duo=/,'');
@@ -335,3 +391,13 @@ $('sy-join').onsubmit=async e=>{
 if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 initSync();
 document.fonts&&document.fonts.ready.then(drawWheel);
+
+// ---------- Mode Hot (réglage propre à chaque téléphone) ----------
+function renderHotToggle(){$('hot-toggle').textContent=S.hot?'🔥 Mode Hot activé · Désactiver':'🔒 Activer le mode Hot (18+)'}
+$('hot-toggle').onclick=async()=>{
+  if(S.hot){S.hot=false;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}renderAll();renderHotToggle();toast('Mode Hot masqué');return}
+  $('sync-modal').classList.remove('on');
+  if(!await ask('Activer le mode Hot 🔥 ?','Réservé aux adultes consentants. Il ne s\'active que sur ce téléphone. Un mot « stop » et on arrête, toujours.'))return;
+  S.hot=true;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}renderAll();renderHotToggle();toast('Mode Hot activé 🔥');
+};
+renderHotToggle();renderDefi();

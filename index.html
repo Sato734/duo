@@ -143,6 +143,16 @@
         <div class="streak" style="color:var(--mint)" id="d-total">0</div>
       </div>
     </div>
+    <div class="card" id="hot-card" style="display:none;background:linear-gradient(135deg,#3a0f2e,#5a1238)">
+      <h2>🔥 Action ou vérité</h2>
+      <div class="muted" id="hot-who">À vous de jouer…</div>
+      <div class="challenge" id="hot-text" style="font-size:21px;min-height:80px">Choisis : action ou vérité ?</div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn-ghost" id="hot-q">💬 Vérité</button>
+        <button class="btn-pink" id="hot-a">🔥 Action</button>
+      </div>
+      <p class="muted" style="margin:10px 0 0;font-size:12px">On peut toujours passer son tour. « Stop » veut dire stop.</p>
+    </div>
     <div class="card">
       <h2>Ambiance</h2>
       <div class="cats" id="d-moods"></div>
@@ -240,7 +250,8 @@
   <div id="sy-on">
     <p class="muted" style="margin:0">Votre code de duo :</p>
     <div class="code" id="sy-code"></div>
-    <button class="btn-pink" id="sy-share" style="width:100%;margin-bottom:16px">📤 Inviter (envoyer le lien)</button>
+    <button class="btn-pink" id="sy-share" style="width:100%;margin-bottom:6px">📤 Inviter dans NOTRE duo</button>
+    <p class="muted" style="margin:0 0 16px;font-size:12px">Seulement pour ton/ta partenaire : ce lien donne accès à vos données.</p>
     <p class="muted" style="margin:0 0 8px">Ou rejoindre le duo de l'autre :</p>
     <form class="row" id="sy-join">
       <input id="sy-input" placeholder="Code ou lien" autocapitalize="off" autocomplete="off" style="flex:2">
@@ -248,6 +259,9 @@
     </form>
   </div>
   <div id="sy-off"><p class="muted">La synchro n'est pas encore configurée. Duo marche quand même sur ce téléphone, mais sans partage.</p></div>
+  <button class="btn-yellow" id="app-share" style="width:100%;margin-top:14px">📲 Faire découvrir Duo à d'autres</button>
+  <p class="muted" style="margin:6px 0 0;font-size:12px">Ils auront leur propre duo, séparé du vôtre.</p>
+  <button class="btn-ghost" id="hot-toggle" style="width:100%;margin-top:14px"></button>
   <button class="btn-ghost" id="sy-close" style="width:100%;margin-top:14px">Fermer</button>
 </div></div>
 
